@@ -46,28 +46,8 @@ client.on("message", async (message) => {
     `I'm listening... but I don't understand **${arg}**.  Type **!FRASIERBOT HELP** if I can be of further assistance.  This is Dr. Frasier Crane wishing you good mental health.`;
 
   if (arg0 === "!frasierbot" || arg0 === "!f") {
-    if (arg1 === "help") {
-      return message.channel.send([
-        "\n",
-        "I'm listening...",
-        "\n",
-        "Use the following terms, separated by spaces:",
-        "*1st:* **!F** or **!FRASIERBOT**",
-        "*2nd:* **LEARN** or **FORGET**",
-        "*3rd*: **NOUN** or **ADJECTIVE** or **VERB** or **ADVERB** or **CHARACTER**",
-        "*4th*: The term you want to add.  Use double quotes for multi-word.",
-        'e.g. **!FRASIERBOT learn noun "ass milk"**',
-        "e.g. **!F learn adjective overpriced**",
-        "e.g. **!F forget noun sherry**",
-        "\n",
-        "You can also view a list of all terms:",
-        "e.g.: **!FRASIERBOT list noun**",
-        "\n",
-        "To create a plot with random elements use curly braces.:",
-        "Input.: **Niles went to the {noun} and ordered some {advective} {noun}.**",
-        "Output.: **Niles went to the wine club and ordered some overpriced ass milk.**",
-        "\n",
-      ]);
+    if (arg1 === "help" || !arg1) {
+      return message.channel.send(HELP_MESSAGE);
     }
 
     if (!ARG_1_OPTS.includes(arg1)) return message.reply(errorMessage(arg1));
