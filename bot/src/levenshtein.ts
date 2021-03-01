@@ -41,5 +41,5 @@ const levenshteinMatch = (a: string, b: string, threshold: number) => {
 };
 
 export const closeEnough = (a: string, b: string) => {
-  return levenshteinMatch(a, b, 2);
+  return levenshteinMatch(a, b, 1);
 };
