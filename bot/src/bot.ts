@@ -20,21 +20,24 @@ const clean = <T extends string>(arg: string | undefined) => {
 const BOT_TEST_CHANNEL_ID = "814725540426416129";
 const TOSSED_SALADS_CHANNEL_ID = "814624969051865138";
 
+const activeChannels =
+  process.env.NODE_ENV === "production"
+    ? [BOT_TEST_CHANNEL_ID, TOSSED_SALADS_CHANNEL_ID]
+    : [BOT_TEST_CHANNEL_ID];
+
 const SpacesExcludingDoubleQuotes = /(?:[^\s"]+|"[^"]*")+/g;
 const TextBetweenCurlyBraces = /\{(.*?)\}/;
 const CurlyBraces = /\{|\}/g;
+
 
 client.on("message", async (message) => {
   // Bot does not respond to itself
   if (message.author.bot) return;
 
   // Bot only works in test channel and tossed-salads channel
-  if (
-    ![BOT_TEST_CHANNEL_ID, TOSSED_SALADS_CHANNEL_ID].includes(
-      message.channel.valueOf()
-    )
-  )
+  if (!activeChannels.includes(message.channel.valueOf())) {
     return;
+  }
 
   const args = message.content.match(SpacesExcludingDoubleQuotes);
 
@@ -45,6 +48,12 @@ client.on("message", async (message) => {
 
   const errorMessage = (arg: string) =>
     `I'm listening... but I don't understand **${arg}**.  Type **!FRASIERBOT HELP** if I can be of further assistance.  This is Dr. Frasier Crane wishing you good mental health.`;
+
+  if (arg0 === "f!") {
+    return message.channel.send(
+      "Oh dear... it seems your f and ! are reversed."
+    );
+  }
 
   if (arg0 === "!frasierbot" || arg0 === "!f") {
     if (arg1 === "help" || !arg1) {
@@ -64,7 +73,7 @@ client.on("message", async (message) => {
     const characters = await prismaConnection.characters.findMany();
 
     // Delete the user's message presuming it contains terms between curlies {} implying it wants the bot to reply
-    message.delete();
+    // message.delete();
 
     return message.channel.send(
       story
@@ -85,10 +94,6 @@ client.on("message", async (message) => {
               return doc.text();
             }
 
-            if (closeEnough("verb", clean(wordNoCurlies))) {
-              return pickRandom(verbs)?.content;
-            }
-
             if (closeEnough("adjective", clean(wordNoCurlies))) {
               return pickRandom(adjectives)?.content;
             }
@@ -97,18 +102,38 @@ client.on("message", async (message) => {
               return pickRandom(adverbs)?.content;
             }
 
+            if (closeEnough("verb", clean(wordNoCurlies))) {
+              const verb = pickRandom(verbs)?.content;
+              const doc = nlp(verb);
+              doc.verbs().toInfinitive();
+              const transformedVerb = doc.text();
+              return transformedVerb;
+            }
+
+            if (closeEnough("verb_present", clean(wordNoCurlies))) {
+              const verb = pickRandom(verbs)?.content;
+              const doc = nlp(verb);
+              doc.verbs().toPresentTense();
+              const transformedVerb = doc.text();
+              return transformedVerb;
+            }
+
             if (closeEnough("verb_past", clean(wordNoCurlies))) {
               const verb = pickRandom(verbs)?.content;
               const doc = nlp(verb);
               doc.verbs().toPastTense();
-              return doc.text();
+              const transformedVerb = doc.text();
+              return verb === transformedVerb ? `${verb}'d` : transformedVerb;
             }
 
             if (closeEnough("verb_future", clean(wordNoCurlies))) {
               const verb = pickRandom(verbs)?.content;
               const doc = nlp(verb);
               doc.verbs().toFutureTense();
-              return doc.text();
+              const transformedVerb = doc.text();
+              return verb === transformedVerb
+                ? `will ${verb}`
+                : transformedVerb;
             }
 
             if (closeEnough("character", clean(wordNoCurlies))) {

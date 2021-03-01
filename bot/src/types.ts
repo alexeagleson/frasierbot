@@ -1,4 +1,4 @@
-export const ARG_0_OPTS = ["!f", "!frasierbot"] as const;
+export const ARG_0_OPTS = ["!f", "!frasierbot", "f!"] as const;
 export const ARG_1_OPTS = ["learn", "forget", "list"] as const;
 export const ARG_2_OPTS = [
   "noun",

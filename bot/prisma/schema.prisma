@@ -8,3 +8,27 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Adjectives {
+  id      Int    @id @default(autoincrement())
+  content String @unique @db.VarChar(100)
+}
+
+model Adverbs {
+  id      Int    @id @default(autoincrement())
+  content String @unique @db.VarChar(100)
+}
+
+model Characters {
+  id      Int    @id @default(autoincrement())
+  content String @unique @db.VarChar(100)
+}
+
+model Nouns {
+  id      Int    @id @default(autoincrement())
+  content String @unique @db.VarChar(100)
+}
+
+model Verbs {
+  id      Int    @id @default(autoincrement())
+  content String @unique @db.VarChar(100)
+}
