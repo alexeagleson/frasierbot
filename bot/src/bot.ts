@@ -1,5 +1,6 @@
 import nlp from "compromise";
 import Discord from "discord.js";
+import { HELP_MESSAGE } from "./constants";
 import { DECISION_TREE } from "./decision-tree";
 import { closeEnough } from "./levenshtein";
 import { prismaConnection } from "./prisma";
