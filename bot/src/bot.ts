@@ -14,7 +14,8 @@ client.login(process.env.BOT_TOKEN);
 
 /** Transforms to uppercase and removes quotation marks */
 const clean = <T extends string>(arg: string | undefined) => {
-  return arg?.toLowerCase()?.replace(/"/g, "") as T;
+  // return arg?.toLowerCase()?.replace(/"/g, "") as T; // Used to replace double quotes
+  return arg?.toLowerCase()?.trim() as T;
 };
 
 const BOT_TEST_CHANNEL_ID = "814725540426416129";
@@ -29,133 +30,173 @@ const SpacesExcludingDoubleQuotes = /(?:[^\s"]+|"[^"]*")+/g;
 const TextBetweenCurlyBraces = /\{(.*?)\}/;
 const CurlyBraces = /\{|\}/g;
 
+// const italics = (arg: string) => `*${arg}*`;
+
 client.on("message", async (message) => {
   // Bot does not respond to itself
   if (message.author.bot) return;
+  const lowerCaseMessage = message.content.toLowerCase();
+
+  if (
+    /!f ignore/i.test(message.content) ||
+    /!frasierbot ignore/i.test(message.content)
+  )
+    return;
+
+  const isDM = message.channel.type === "dm";
+  const isPermittedChannel = activeChannels.includes(message.channel.valueOf());
 
   // Bot only works in test channel and tossed-salads channel
-  if (!activeChannels.includes(message.channel.valueOf())) {
-    return;
-  }
+  if (isDM || isPermittedChannel) {
+    // const args = message.content.match(SpacesExcludingDoubleQuotes);
+    const args = message.content.split(" ");
 
-  const args = message.content.match(SpacesExcludingDoubleQuotes);
+    const arg0 = clean<ARG_0>(args?.shift());
+    const arg1 = clean<ARG_1 | "help">(args?.shift());
+    const arg2 = clean<ARG_2>(args?.shift());
+    const arg3 = clean<ARG_3>(args?.join(" "));
 
-  const arg0 = clean<ARG_0>(args?.[0]);
-  const arg1 = clean<ARG_1 | "help">(args?.[1]);
-  const arg2 = clean<ARG_2>(args?.[2]);
-  const arg3 = clean<ARG_3>(args?.[3]);
+    const errorMessage = (arg: string) =>
+      `I'm listening... but I don't understand **${arg}**.  Type **!FRASIERBOT HELP** if I can be of further assistance.  This is Dr. Frasier Crane wishing you good mental health.`;
 
-  const errorMessage = (arg: string) =>
-    `I'm listening... but I don't understand **${arg}**.  Type **!FRASIERBOT HELP** if I can be of further assistance.  This is Dr. Frasier Crane wishing you good mental health.`;
-
-  if (arg0 === "f!") {
-    return message.channel.send(
-      "Oh dear... it seems your f and ! are reversed."
-    );
-  }
-
-  if (arg0 === "!frasierbot" || arg0 === "!f") {
-    if (arg1 === "help" || !arg1) {
-      return message.channel.send(HELP_MESSAGE);
+    if (arg0 === "f!") {
+      return message.channel.send(
+        "Oh dear... it seems your f and ! are reversed."
+      );
     }
 
-    if (!ARG_1_OPTS.includes(arg1)) return message.reply(errorMessage(arg1));
-    if (!ARG_2_OPTS.includes(arg2)) return message.reply(errorMessage(arg2));
+    if (arg0 === "!frasierbot" || arg0 === "!f") {
+      if (arg1 === "help" || !arg1) {
+        return message.channel.send(HELP_MESSAGE);
+      }
 
-    DECISION_TREE[arg1][arg2](arg3, message);
-  } else if (TextBetweenCurlyBraces.test(message.content)) {
-    const story = message.content.replace("!frasierbot", "").replace("!f", "");
-    const nouns = await prismaConnection.nouns.findMany();
-    const verbs = await prismaConnection.verbs.findMany();
-    const adverbs = await prismaConnection.adverbs.findMany();
-    const adjectives = await prismaConnection.adjectives.findMany();
-    const characters = await prismaConnection.characters.findMany();
+      if (!ARG_1_OPTS.includes(arg1)) return message.reply(errorMessage(arg1));
+      if (!ARG_2_OPTS.includes(arg2)) return message.reply(errorMessage(arg2));
 
-    // Delete the user's message presuming it contains terms between curlies {} implying it wants the bot to reply
-    // message.delete();
+      DECISION_TREE[arg1][arg2](arg3, message);
+    } else if (TextBetweenCurlyBraces.test(message.content)) {
+      const story = message.content
+        .replace("!frasierbot", "")
+        .replace("!f", "");
+      const nouns = await prismaConnection.nouns.findMany();
+      const verbs = await prismaConnection.verbs.findMany();
+      const adverbs = await prismaConnection.adverbs.findMany();
+      const adjectives = await prismaConnection.adjectives.findMany();
+      const characters = await prismaConnection.characters.findMany();
 
-    return message.channel.send(
-      story
-        .split(" ")
-        .map((word) => {
-          // Match anything between curcly braces
-          if (TextBetweenCurlyBraces.test(word)) {
-            const wordNoCurlies = word.replace(CurlyBraces, "");
+      // Delete the user's message presuming it contains terms between curlies {} implying it wants the bot to reply
+      // if (!isDM) {
+      //   message.delete();
+      // }
 
-            if (closeEnough("noun", clean(wordNoCurlies))) {
+      return message.channel.send(
+        // italics(
+        story
+          .split(TextBetweenCurlyBraces)
+          .map((word) => {
+            // Match anything between curcly braces
+            // if (TextBetweenCurlyBraces.test(word)) {
+            // const wordNoCurlies = word.replace(CurlyBraces, "");
+            const cleanWord = clean(word);
+
+            if (closeEnough("noun", cleanWord) || cleanWord === "n") {
               return pickRandom(nouns)?.content;
-            }
-
-            if (closeEnough("noun_plural", clean(wordNoCurlies))) {
+            } else if (
+              closeEnough("noun_plural", cleanWord) ||
+              cleanWord === "np"
+            ) {
               const noun = pickRandom(nouns)?.content;
               const doc = nlp(noun);
               doc.nouns().toPlural();
-              return doc.text();
-            }
-
-            if (closeEnough("adjective", clean(wordNoCurlies))) {
+              const transformedNoun = doc.text();
+              return noun === transformedNoun && !transformedNoun.endsWith("s")
+                ? `${noun}s`
+                : transformedNoun;
+            } else if (
+              closeEnough("adjective", cleanWord) ||
+              cleanWord === "adj" ||
+              cleanWord === "ad" ||
+              cleanWord === "a"
+            ) {
               return pickRandom(adjectives)?.content;
-            }
-
-            if (closeEnough("adverb", clean(wordNoCurlies))) {
+            } else if (
+              closeEnough("adverb", cleanWord) ||
+              cleanWord === "adv"
+            ) {
               return pickRandom(adverbs)?.content;
-            }
-
-            if (closeEnough("verb", clean(wordNoCurlies))) {
+            } else if (closeEnough("verb", cleanWord) || cleanWord === "v") {
               return pickRandom(verbs)?.content;
-            }
-
-            if (closeEnough("verb_infinitive", clean(wordNoCurlies))) {
+            } else if (
+              closeEnough("verb_infinitive", cleanWord) ||
+              cleanWord === "vi"
+            ) {
               const verb = pickRandom(verbs)?.content;
               const doc = nlp(verb);
               doc.verbs().toInfinitive();
               const transformedVerb = doc.text();
               return transformedVerb;
-            }
-
-            if (closeEnough("verb_gerund", clean(wordNoCurlies))) {
+            } else if (
+              closeEnough("verb_gerund", cleanWord) ||
+              cleanWord === "vg"
+            ) {
               const verb = pickRandom(verbs)?.content;
               const doc = nlp(verb);
               doc.verbs().toGerund();
               const transformedVerb = doc.text();
-              return verb === transformedVerb ? `${verb}ing` : transformedVerb;
-            }
-
-            if (closeEnough("verb_present", clean(wordNoCurlies))) {
+              return verb === transformedVerb &&
+                !transformedVerb.endsWith("ing")
+                ? `${verb}ing`
+                : transformedVerb;
+            } else if (
+              closeEnough("verb_present", cleanWord) ||
+              cleanWord === "vpr" ||
+              cleanWord === "vp"
+            ) {
               const verb = pickRandom(verbs)?.content;
               const doc = nlp(verb);
               doc.verbs().toPresentTense();
               const transformedVerb = doc.text();
-              return transformedVerb;
-            }
-
-            if (closeEnough("verb_past", clean(wordNoCurlies))) {
+              return verb === transformedVerb && !transformedVerb.endsWith("s")
+                ? `${verb}s`
+                : transformedVerb;
+            } else if (
+              closeEnough("verb_past", cleanWord) ||
+              cleanWord === "vpa"
+            ) {
               const verb = pickRandom(verbs)?.content;
               const doc = nlp(verb);
               doc.verbs().toPastTense();
               const transformedVerb = doc.text();
-              return verb === transformedVerb ? `${verb}'d` : transformedVerb;
-            }
-
-            if (closeEnough("verb_future", clean(wordNoCurlies))) {
+              return verb === transformedVerb && !transformedVerb.endsWith("d")
+                ? `${verb}'d`
+                : transformedVerb;
+            } else if (
+              closeEnough("verb_future", cleanWord) ||
+              cleanWord === "vf"
+            ) {
               const verb = pickRandom(verbs)?.content;
               const doc = nlp(verb);
               doc.verbs().toFutureTense();
               const transformedVerb = doc.text();
-              return verb === transformedVerb ? `will ${verb}` : transformedVerb;
-            }
-
-            if (closeEnough("character", clean(wordNoCurlies))) {
+              return verb === transformedVerb
+                ? `will ${verb}`
+                : transformedVerb;
+            } else if (
+              closeEnough("character", cleanWord) ||
+              cleanWord === "c"
+            ) {
               const character = pickRandom(characters)?.content;
               const doc = nlp(character);
               doc.all().toTitleCase();
               return doc.text();
             }
-          }
-          return word;
-        })
-        .join(" ")
-    );
+            // }
+            return word;
+          })
+          .join("")
+        // )
+      );
+    }
   }
 });
 

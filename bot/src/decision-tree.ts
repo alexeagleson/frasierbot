@@ -30,7 +30,7 @@ export const DECISION_TREE: Record<ARG_1, Record<ARG_2, MessageProcessor>> = {
         await prismaConnection.nouns.create({
           data: { content: arg },
         });
-        message.channel.send(`My lexicon is growing`);
+        message.channel.send(`My lexicon is growing, I've learned ${arg}.`);
       } catch (e) {
         createError(e, message);
       }
@@ -40,7 +40,7 @@ export const DECISION_TREE: Record<ARG_1, Record<ARG_2, MessageProcessor>> = {
         await prismaConnection.verbs.create({
           data: { content: arg },
         });
-        message.channel.send(`My lexicon is growing`);
+        message.channel.send(`My lexicon is growing, I've learned ${arg}.`);
       } catch (e) {
         createError(e, message);
       }
@@ -50,7 +50,7 @@ export const DECISION_TREE: Record<ARG_1, Record<ARG_2, MessageProcessor>> = {
         await prismaConnection.characters.create({
           data: { content: arg },
         });
-        message.channel.send(`My lexicon is growing`);
+        message.channel.send(`My lexicon is growing, I've learned ${arg}.`);
       } catch (e) {
         createError(e, message);
       }
@@ -60,7 +60,7 @@ export const DECISION_TREE: Record<ARG_1, Record<ARG_2, MessageProcessor>> = {
         await prismaConnection.adjectives.create({
           data: { content: arg },
         });
-        message.channel.send(`My lexicon is growing`);
+        message.channel.send(`My lexicon is growing, I've learned ${arg}`);
       } catch (e) {
         createError(e, message);
       }
@@ -70,7 +70,7 @@ export const DECISION_TREE: Record<ARG_1, Record<ARG_2, MessageProcessor>> = {
         await prismaConnection.adverbs.create({
           data: { content: arg },
         });
-        message.channel.send(`My lexicon is growing`);
+        message.channel.send(`My lexicon is growing, I've learned ${arg}.`);
       } catch (e) {
         createError(e, message);
       }
