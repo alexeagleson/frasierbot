@@ -130,7 +130,7 @@ client.on("message", async (message) => {
       const adjectives = await prismaConnection.adjectives.findMany();
       const characters = await prismaConnection.characters.findMany();
 
-      Delete the user's message presuming it contains terms between curlies {} implying it wants the bot to reply
+      // Delete the user's message presuming it contains terms between curlies {} implying it wants the bot to reply
       if (!isDM) {
         message.delete();
       }
