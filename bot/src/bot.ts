@@ -29,7 +29,6 @@ const SpacesExcludingDoubleQuotes = /(?:[^\s"]+|"[^"]*")+/g;
 const TextBetweenCurlyBraces = /\{(.*?)\}/;
 const CurlyBraces = /\{|\}/g;
 
-
 client.on("message", async (message) => {
   // Bot does not respond to itself
   if (message.author.bot) return;
@@ -103,9 +102,21 @@ client.on("message", async (message) => {
             }
 
             if (closeEnough("verb", clean(wordNoCurlies))) {
+              return pickRandom(verbs)?.content;
+            }
+
+            if (closeEnough("verb_infinitive", clean(wordNoCurlies))) {
               const verb = pickRandom(verbs)?.content;
               const doc = nlp(verb);
               doc.verbs().toInfinitive();
+              const transformedVerb = doc.text();
+              return transformedVerb;
+            }
+
+            if (closeEnough("verb_gerund", clean(wordNoCurlies))) {
+              const verb = pickRandom(verbs)?.content;
+              const doc = nlp(verb);
+              doc.verbs().toGerund();
               const transformedVerb = doc.text();
               return transformedVerb;
             }
@@ -123,7 +134,7 @@ client.on("message", async (message) => {
               const doc = nlp(verb);
               doc.verbs().toPastTense();
               const transformedVerb = doc.text();
-              return verb === transformedVerb ? `${verb}'d` : transformedVerb;
+              return transformedVerb;
             }
 
             if (closeEnough("verb_future", clean(wordNoCurlies))) {
@@ -131,9 +142,7 @@ client.on("message", async (message) => {
               const doc = nlp(verb);
               doc.verbs().toFutureTense();
               const transformedVerb = doc.text();
-              return verb === transformedVerb
-                ? `will ${verb}`
-                : transformedVerb;
+              return transformedVerb;
             }
 
             if (closeEnough("character", clean(wordNoCurlies))) {
