@@ -30,6 +30,52 @@ const SpacesExcludingDoubleQuotes = /(?:[^\s"]+|"[^"]*")+/g;
 const TextBetweenCurlyBraces = /\{(.*?)\}/;
 const CurlyBraces = /\{|\}/g;
 
+// const shorthandTransform = (
+//   arg: string
+// ):
+//   | "verb"
+//   | "verb_future"
+//   | "verb_past"
+//   | "verb_present"
+//   | "verb_gerund"
+//   | "verb_infinitive"
+//   | "adverb"
+//   | "adjective"
+//   | "noun"
+//   | "noun_plural"
+//   | "character" => {
+//   if (arg === "n") {
+//     return "noun";
+//   } else if (arg === "np") {
+//     return "noun_plural";
+//   } else if (arg === "adj") {
+//     return "adjective";
+//   } else if (arg === "ad") {
+//     return "adjective";
+//   } else if (arg === "a") {
+//     return "adjective";
+//   } else if (arg === "adv") {
+//     return "adverb";
+//   } else if (arg === "v") {
+//     return "verb";
+//   } else if (arg === "vi") {
+//     return "verb_infinitive";
+//   } else if (arg === "vg") {
+//     return "verb_gerund";
+//   } else if (arg === "vpr") {
+//     return "verb_present";
+//   } else if (arg === "vp") {
+//     return "verb_past";
+//   } else if (arg === "vpa") {
+//     return "verb_past";
+//   } else if (arg === "vf") {
+//     return "verb_future";
+//   } else if (arg === "c") {
+//     return "character";
+//   }
+//   return "DONT_UNDERSTAND" as "noun";
+// };
+
 // const italics = (arg: string) => `*${arg}*`;
 
 client.on("message", async (message) => {
@@ -84,10 +130,10 @@ client.on("message", async (message) => {
       const adjectives = await prismaConnection.adjectives.findMany();
       const characters = await prismaConnection.characters.findMany();
 
-      // Delete the user's message presuming it contains terms between curlies {} implying it wants the bot to reply
-      // if (!isDM) {
-      //   message.delete();
-      // }
+      Delete the user's message presuming it contains terms between curlies {} implying it wants the bot to reply
+      if (!isDM) {
+        message.delete();
+      }
 
       return message.channel.send(
         // italics(
