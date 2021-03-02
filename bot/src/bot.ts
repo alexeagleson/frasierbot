@@ -118,7 +118,7 @@ client.on("message", async (message) => {
               const doc = nlp(verb);
               doc.verbs().toGerund();
               const transformedVerb = doc.text();
-              return transformedVerb;
+              return verb === transformedVerb ? `${verb}ing` : transformedVerb;
             }
 
             if (closeEnough("verb_present", clean(wordNoCurlies))) {
@@ -134,7 +134,7 @@ client.on("message", async (message) => {
               const doc = nlp(verb);
               doc.verbs().toPastTense();
               const transformedVerb = doc.text();
-              return transformedVerb;
+              return verb === transformedVerb ? `${verb}'d` : transformedVerb;
             }
 
             if (closeEnough("verb_future", clean(wordNoCurlies))) {
@@ -142,7 +142,7 @@ client.on("message", async (message) => {
               const doc = nlp(verb);
               doc.verbs().toFutureTense();
               const transformedVerb = doc.text();
-              return transformedVerb;
+              return verb === transformedVerb ? `will ${verb}` : transformedVerb;
             }
 
             if (closeEnough("character", clean(wordNoCurlies))) {
