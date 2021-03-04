@@ -28,7 +28,7 @@ export const DECISION_TREE: Record<ARG_1, Record<ARG_2, MessageProcessor>> = {
     noun: async (arg, message) => {
       try {
         await prismaConnection.nouns.create({
-          data: { content: arg },
+          data: { content: arg.toLowerCase() },
         });
         message.channel.send(`My lexicon is growing, I've learned ${arg}.`);
       } catch (e) {
@@ -38,7 +38,7 @@ export const DECISION_TREE: Record<ARG_1, Record<ARG_2, MessageProcessor>> = {
     verb: async (arg, message) => {
       try {
         await prismaConnection.verbs.create({
-          data: { content: arg },
+          data: { content: arg.toLowerCase() },
         });
         message.channel.send(`My lexicon is growing, I've learned ${arg}.`);
       } catch (e) {
@@ -48,7 +48,7 @@ export const DECISION_TREE: Record<ARG_1, Record<ARG_2, MessageProcessor>> = {
     character: async (arg, message) => {
       try {
         await prismaConnection.characters.create({
-          data: { content: arg },
+          data: { content: arg.toLowerCase() },
         });
         message.channel.send(`My lexicon is growing, I've learned ${arg}.`);
       } catch (e) {
@@ -58,7 +58,7 @@ export const DECISION_TREE: Record<ARG_1, Record<ARG_2, MessageProcessor>> = {
     adjective: async (arg, message) => {
       try {
         await prismaConnection.adjectives.create({
-          data: { content: arg },
+          data: { content: arg.toLowerCase() },
         });
         message.channel.send(`My lexicon is growing, I've learned ${arg}`);
       } catch (e) {
@@ -68,7 +68,7 @@ export const DECISION_TREE: Record<ARG_1, Record<ARG_2, MessageProcessor>> = {
     adverb: async (arg, message) => {
       try {
         await prismaConnection.adverbs.create({
-          data: { content: arg },
+          data: { content: arg.toLowerCase() },
         });
         message.channel.send(`My lexicon is growing, I've learned ${arg}.`);
       } catch (e) {
@@ -76,9 +76,22 @@ export const DECISION_TREE: Record<ARG_1, Record<ARG_2, MessageProcessor>> = {
       }
     },
     exclamation: async (arg, message) => {
-      const noQuotesArg = arg.replace(`"`, "");
+      const noQuotesArg = arg.replace(/"/g, "");
       try {
         await prismaConnection.exclamations.create({
+          data: { content: noQuotesArg },
+        });
+        message.channel.send(
+          `My lexicon is growing, I've learned ${noQuotesArg}.`
+        );
+      } catch (e) {
+        createError(e, message);
+      }
+    },
+    quote: async (arg, message) => {
+      const noQuotesArg = arg.replace(/"/g, "");
+      try {
+        await prismaConnection.quotes.create({
           data: { content: noQuotesArg },
         });
         message.channel.send(
@@ -150,6 +163,17 @@ export const DECISION_TREE: Record<ARG_1, Record<ARG_2, MessageProcessor>> = {
         deleteError(e, message);
       }
     },
+    quote: async (arg, message) => {
+      try {
+        await prismaConnection.quotes.delete({
+          where: { content: arg },
+          
+        });
+        message.channel.send(`${arg} forgotten`);
+      } catch (e) {
+        deleteError(e, message);
+      }
+    },
   },
   list: {
     noun: async (arg, message) => {
@@ -204,6 +228,16 @@ export const DECISION_TREE: Record<ARG_1, Record<ARG_2, MessageProcessor>> = {
     },
     exclamation: async (arg, message) => {
       const results = await prismaConnection.exclamations.findMany();
+      if (results.length === 0) {
+        message.channel.send(`Dear god!  I don't know any`);
+      } else {
+        message.channel.send(
+          results.map((result) => result.content).join(", ")
+        );
+      }
+    },
+    quote: async (arg, message) => {
+      const results = await prismaConnection.quotes.findMany();
       if (results.length === 0) {
         message.channel.send(`Dear god!  I don't know any`);
       } else {

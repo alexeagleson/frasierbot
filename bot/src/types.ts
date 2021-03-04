@@ -7,6 +7,7 @@ export const ARG_2_OPTS = [
   "adverb",
   "character",
   "exclamation",
+  "quote"
 ] as const;
 
 export type ARG_0 = typeof ARG_0_OPTS[number];

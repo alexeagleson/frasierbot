@@ -61,6 +61,8 @@ const shorthandTransform = (arg: string): string => {
     return "character";
   } else if (arg === "e") {
     return "exclamation";
+  } else if (arg === "q") {
+    return "quote";
   }
   return arg;
 };
@@ -89,7 +91,7 @@ client.on("message", async (message) => {
     const arg0 = clean<ARG_0>(args?.shift());
     const arg1 = clean<ARG_1 | "help">(args?.shift());
     const arg2 = shorthandTransform(clean(args?.shift())) as ARG_2;
-    const arg3 = clean<ARG_3>(args?.join(" "));
+    const arg3 = args?.join(" ");
 
     const errorMessage = (arg: string) =>
       `I'm listening... but I don't understand **${arg}**.  Type **!FRASIERBOT HELP** if I can be of further assistance.  This is Dr. Frasier Crane wishing you good mental health.`;
@@ -106,6 +108,7 @@ client.on("message", async (message) => {
       const adjectives = await prismaConnection.adjectives.findMany();
       const characters = await prismaConnection.characters.findMany();
       const exclamations = await prismaConnection.exclamations.findMany();
+      const quotes = await prismaConnection.quotes.findMany();
 
       // Delete the user's message presuming it contains terms between curlies {} implying it wants the bot to reply
       if (!isDM && process.env.DELETE_MESSAGES?.toUpperCase() === "Y") {
@@ -221,6 +224,15 @@ client.on("message", async (message) => {
               // doc.verbs().toFutureTense();
               // const transformedVerb = doc.text();
               return exclamation;
+            } else if (
+              closeEnough("quotes", cleanWord) ||
+              cleanWord === "q"
+            ) {
+              const quote = pickRandom(quotes)?.content;
+              // const doc = nlp(verb);
+              // doc.verbs().toFutureTense();
+              // const transformedVerb = doc.text();
+              return quote;
             }
             // }
             return word;

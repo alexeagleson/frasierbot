@@ -37,3 +37,8 @@ model Exclamations {
   id      Int    @id @default(autoincrement())
   content String @unique @db.VarChar(250)
 }
+
+model Quotes {
+  id      Int    @id @default(autoincrement())
+  content String @unique @db.VarChar(2000)
+}

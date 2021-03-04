@@ -34,6 +34,12 @@ GO
     );
 
 GO
+    CREATE TABLE Quotes (
+        id INT IDENTITY(1, 1) PRIMARY KEY NOT NULL,
+        content VARCHAR(2000) NOT NULL UNIQUE
+    );
+
+GO
 -- INSERT INTO
 --     Nouns (content)
 -- VALUES

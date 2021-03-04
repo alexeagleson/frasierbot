@@ -33,6 +33,7 @@ done
 /opt/mssql-tools/bin/bcp "$DB_NAME".dbo.Adverbs in "/usr/src/app/csv/Adverbs.csv" -c -t',' -S $DB_DOMAIN -U $DB_USERNAME -P $SA_PASSWORD
 /opt/mssql-tools/bin/bcp "$DB_NAME".dbo.Characters in "/usr/src/app/csv/Characters.csv" -c -t',' -S $DB_DOMAIN -U $DB_USERNAME -P $SA_PASSWORD
 /opt/mssql-tools/bin/bcp "$DB_NAME".dbo.Exclamations in "/usr/src/app/csv/Exclamations.csv" -c -t',' -S $DB_DOMAIN -U $DB_USERNAME -P $SA_PASSWORD
+/opt/mssql-tools/bin/bcp "$DB_NAME".dbo.Quotes in "/usr/src/app/csv/Quotes.csv" -c -t',' -S $DB_DOMAIN -U $DB_USERNAME -P $SA_PASSWORD
 
 yarn introspect
 yarn generate
