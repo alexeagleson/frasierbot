@@ -20,5 +20,6 @@ services:
       DATABASE_URL: sqlserver://${DB_DOMAIN}:1433;database=${DB_NAME};user=${DB_USERNAME};password=${DB_PASSWORD};trustServerCertificate=true
       BOT_TOKEN: ${BOT_TOKEN}
       NODE_ENV: ${NODE_ENV}
+      DELETE_MESSAGES: ${DELETE_MESSAGES}
       ACCEPT_EULA: Y
 

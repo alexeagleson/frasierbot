@@ -1,30 +1,36 @@
 CREATE TABLE Nouns (
     id INT IDENTITY(1, 1) PRIMARY KEY NOT NULL,
-    content VARCHAR(100) NOT NULL UNIQUE
+    content VARCHAR(250) NOT NULL UNIQUE
 );
 
 GO
     CREATE TABLE Verbs (
         id INT IDENTITY(1, 1) PRIMARY KEY NOT NULL,
-        content VARCHAR(100) NOT NULL UNIQUE
+        content VARCHAR(250) NOT NULL UNIQUE
     );
 
 GO
     CREATE TABLE Adjectives (
         id INT IDENTITY(1, 1) PRIMARY KEY NOT NULL,
-        content VARCHAR(100) NOT NULL UNIQUE
+        content VARCHAR(250) NOT NULL UNIQUE
     );
 
 GO
     CREATE TABLE Adverbs (
         id INT IDENTITY(1, 1) PRIMARY KEY NOT NULL,
-        content VARCHAR(100) NOT NULL UNIQUE
+        content VARCHAR(250) NOT NULL UNIQUE
     );
 
 GO
     CREATE TABLE Characters (
         id INT IDENTITY(1, 1) PRIMARY KEY NOT NULL,
-        content VARCHAR(100) NOT NULL UNIQUE
+        content VARCHAR(250) NOT NULL UNIQUE
+    );
+
+GO
+    CREATE TABLE Exclamations (
+        id INT IDENTITY(1, 1) PRIMARY KEY NOT NULL,
+        content VARCHAR(250) NOT NULL UNIQUE
     );
 
 GO

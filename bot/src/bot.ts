@@ -30,51 +30,40 @@ const SpacesExcludingDoubleQuotes = /(?:[^\s"]+|"[^"]*")+/g;
 const TextBetweenCurlyBraces = /\{(.*?)\}/;
 const CurlyBraces = /\{|\}/g;
 
-// const shorthandTransform = (
-//   arg: string
-// ):
-//   | "verb"
-//   | "verb_future"
-//   | "verb_past"
-//   | "verb_present"
-//   | "verb_gerund"
-//   | "verb_infinitive"
-//   | "adverb"
-//   | "adjective"
-//   | "noun"
-//   | "noun_plural"
-//   | "character" => {
-//   if (arg === "n") {
-//     return "noun";
-//   } else if (arg === "np") {
-//     return "noun_plural";
-//   } else if (arg === "adj") {
-//     return "adjective";
-//   } else if (arg === "ad") {
-//     return "adjective";
-//   } else if (arg === "a") {
-//     return "adjective";
-//   } else if (arg === "adv") {
-//     return "adverb";
-//   } else if (arg === "v") {
-//     return "verb";
-//   } else if (arg === "vi") {
-//     return "verb_infinitive";
-//   } else if (arg === "vg") {
-//     return "verb_gerund";
-//   } else if (arg === "vpr") {
-//     return "verb_present";
-//   } else if (arg === "vp") {
-//     return "verb_past";
-//   } else if (arg === "vpa") {
-//     return "verb_past";
-//   } else if (arg === "vf") {
-//     return "verb_future";
-//   } else if (arg === "c") {
-//     return "character";
-//   }
-//   return "DONT_UNDERSTAND" as "noun";
-// };
+const shorthandTransform = (arg: string): string => {
+  if (arg === "n") {
+    return "noun";
+  } else if (arg === "np") {
+    return "noun_plural";
+  } else if (arg === "adj") {
+    return "adjective";
+  } else if (arg === "ad") {
+    return "adjective";
+  } else if (arg === "a") {
+    return "adjective";
+  } else if (arg === "adv") {
+    return "adverb";
+  } else if (arg === "v") {
+    return "verb";
+  } else if (arg === "vi") {
+    return "verb_infinitive";
+  } else if (arg === "vg") {
+    return "verb_gerund";
+  } else if (arg === "vpr") {
+    return "verb_present";
+  } else if (arg === "vp") {
+    return "verb_past";
+  } else if (arg === "vpa") {
+    return "verb_past";
+  } else if (arg === "vf") {
+    return "verb_future";
+  } else if (arg === "c") {
+    return "character";
+  } else if (arg === "e") {
+    return "exclamation";
+  }
+  return arg;
+};
 
 // const italics = (arg: string) => `*${arg}*`;
 
@@ -99,39 +88,27 @@ client.on("message", async (message) => {
 
     const arg0 = clean<ARG_0>(args?.shift());
     const arg1 = clean<ARG_1 | "help">(args?.shift());
-    const arg2 = clean<ARG_2>(args?.shift());
+    const arg2 = shorthandTransform(clean(args?.shift())) as ARG_2;
     const arg3 = clean<ARG_3>(args?.join(" "));
 
     const errorMessage = (arg: string) =>
       `I'm listening... but I don't understand **${arg}**.  Type **!FRASIERBOT HELP** if I can be of further assistance.  This is Dr. Frasier Crane wishing you good mental health.`;
 
-    if (arg0 === "f!") {
-      return message.channel.send(
-        "Oh dear... it seems your f and ! are reversed."
-      );
-    }
-
-    if (arg0 === "!frasierbot" || arg0 === "!f") {
-      if (arg1 === "help" || !arg1) {
-        return message.channel.send(HELP_MESSAGE);
-      }
-
-      if (!ARG_1_OPTS.includes(arg1)) return message.reply(errorMessage(arg1));
-      if (!ARG_2_OPTS.includes(arg2)) return message.reply(errorMessage(arg2));
-
-      DECISION_TREE[arg1][arg2](arg3, message);
-    } else if (TextBetweenCurlyBraces.test(message.content)) {
+    if (TextBetweenCurlyBraces.test(message.content)) {
       const story = message.content
         .replace("!frasierbot", "")
-        .replace("!f", "");
+        .replace("!f", "")
+        .replace("f!", "");
+
       const nouns = await prismaConnection.nouns.findMany();
       const verbs = await prismaConnection.verbs.findMany();
       const adverbs = await prismaConnection.adverbs.findMany();
       const adjectives = await prismaConnection.adjectives.findMany();
       const characters = await prismaConnection.characters.findMany();
+      const exclamations = await prismaConnection.exclamations.findMany();
 
       // Delete the user's message presuming it contains terms between curlies {} implying it wants the bot to reply
-      if (!isDM) {
+      if (!isDM && process.env.DELETE_MESSAGES?.toUpperCase() === "Y") {
         message.delete();
       }
 
@@ -235,6 +212,15 @@ client.on("message", async (message) => {
               const doc = nlp(character);
               doc.all().toTitleCase();
               return doc.text();
+            } else if (
+              closeEnough("exclamation", cleanWord) ||
+              cleanWord === "e"
+            ) {
+              const exclamation = pickRandom(exclamations)?.content;
+              // const doc = nlp(verb);
+              // doc.verbs().toFutureTense();
+              // const transformedVerb = doc.text();
+              return exclamation;
             }
             // }
             return word;
@@ -242,6 +228,15 @@ client.on("message", async (message) => {
           .join("")
         // )
       );
+    } else if (arg0 === "!frasierbot" || arg0 === "!f" || arg0 === "f!") {
+      if (arg1 === "help" || !arg1) {
+        return message.channel.send(HELP_MESSAGE);
+      }
+
+      if (!ARG_1_OPTS.includes(arg1)) return message.reply(errorMessage(arg1));
+      if (!ARG_2_OPTS.includes(arg2)) return message.reply(errorMessage(arg2));
+
+      DECISION_TREE[arg1][arg2](arg3, message);
     }
   }
 });

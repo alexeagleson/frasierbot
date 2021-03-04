@@ -75,6 +75,19 @@ export const DECISION_TREE: Record<ARG_1, Record<ARG_2, MessageProcessor>> = {
         createError(e, message);
       }
     },
+    exclamation: async (arg, message) => {
+      const noQuotesArg = arg.replace(`"`, "");
+      try {
+        await prismaConnection.exclamations.create({
+          data: { content: noQuotesArg },
+        });
+        message.channel.send(
+          `My lexicon is growing, I've learned ${noQuotesArg}.`
+        );
+      } catch (e) {
+        createError(e, message);
+      }
+    },
   },
   forget: {
     noun: async (arg, message) => {
@@ -127,6 +140,16 @@ export const DECISION_TREE: Record<ARG_1, Record<ARG_2, MessageProcessor>> = {
         deleteError(e, message);
       }
     },
+    exclamation: async (arg, message) => {
+      try {
+        await prismaConnection.exclamations.delete({
+          where: { content: arg },
+        });
+        message.channel.send(`${arg} forgotten`);
+      } catch (e) {
+        deleteError(e, message);
+      }
+    },
   },
   list: {
     noun: async (arg, message) => {
@@ -171,6 +194,16 @@ export const DECISION_TREE: Record<ARG_1, Record<ARG_2, MessageProcessor>> = {
     },
     adverb: async (arg, message) => {
       const results = await prismaConnection.adverbs.findMany();
+      if (results.length === 0) {
+        message.channel.send(`Dear god!  I don't know any`);
+      } else {
+        message.channel.send(
+          results.map((result) => result.content).join(", ")
+        );
+      }
+    },
+    exclamation: async (arg, message) => {
+      const results = await prismaConnection.exclamations.findMany();
       if (results.length === 0) {
         message.channel.send(`Dear god!  I don't know any`);
       } else {
