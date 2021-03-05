@@ -248,7 +248,7 @@ client.on("message", async (message) => {
       const splitTerms = arg3.split(/&&/);
 
       splitTerms.forEach((term) => {
-        DECISION_TREE[arg1][arg2](term, message);
+        DECISION_TREE[arg1][arg2](term.trim(), message);
       });
     }
   }
