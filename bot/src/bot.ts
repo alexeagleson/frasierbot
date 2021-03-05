@@ -224,10 +224,7 @@ client.on("message", async (message) => {
               // doc.verbs().toFutureTense();
               // const transformedVerb = doc.text();
               return exclamation;
-            } else if (
-              closeEnough("quotes", cleanWord) ||
-              cleanWord === "q"
-            ) {
+            } else if (closeEnough("quotes", cleanWord) || cleanWord === "q") {
               const quote = pickRandom(quotes)?.content;
               // const doc = nlp(verb);
               // doc.verbs().toFutureTense();
@@ -248,7 +245,11 @@ client.on("message", async (message) => {
       if (!ARG_1_OPTS.includes(arg1)) return message.reply(errorMessage(arg1));
       if (!ARG_2_OPTS.includes(arg2)) return message.reply(errorMessage(arg2));
 
-      DECISION_TREE[arg1][arg2](arg3, message);
+      const splitTerms = arg3.split(/&&/);
+
+      splitTerms.forEach((term) => {
+        DECISION_TREE[arg1][arg2](term, message);
+      });
     }
   }
 });
