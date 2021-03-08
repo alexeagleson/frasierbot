@@ -137,8 +137,11 @@ client.on("message", async (message) => {
             ) {
               let noun = pickRandom(nouns)?.content;
               if (/(n|noun)[0-9]/i.test(cleanWord)) {
-                noun = memory[cleanWord.replace("noun", "n")] ?? noun;
-                memory[cleanWord] = noun;
+                const memoryShorthand = cleanWord
+                  .replace("noun", "n")
+                  .toLowerCase();
+                noun = memory[memoryShorthand] ?? noun;
+                memory[memoryShorthand] = noun;
               }
               return noun;
             } else if (
@@ -228,8 +231,11 @@ client.on("message", async (message) => {
             ) {
               let character = pickRandom(characters)?.content;
               if (/(c|character)[0-9]/i.test(cleanWord)) {
-                character = memory[cleanWord.replace("character", "c")] ?? character;
-                memory[cleanWord] = character;
+                const memoryShorthand = cleanWord
+                  .replace("character", "c")
+                  .toLowerCase();
+                character = memory[memoryShorthand] ?? character;
+                memory[memoryShorthand] = character;
               }
 
               const doc = nlp(character);
@@ -242,8 +248,11 @@ client.on("message", async (message) => {
             ) {
               let exclamation = pickRandom(exclamations)?.content;
               if (/(e|exclamation)[0-9]/i.test(cleanWord)) {
-                exclamation = memory[cleanWord.replace("exclamation", "e")] ?? exclamation;
-                memory[cleanWord] = exclamation;
+                const memoryShorthand = cleanWord
+                  .replace("exclamation", "e")
+                  .toLowerCase();
+                exclamation = memory[memoryShorthand] ?? exclamation;
+                memory[memoryShorthand] = exclamation;
               }
               return exclamation;
             } else if (closeEnough("quote", cleanWord) || cleanWord === "q") {
@@ -256,8 +265,11 @@ client.on("message", async (message) => {
             ) {
               let place = pickRandom(places)?.content;
               if (/(p|place)[0-9]/i.test(cleanWord)) {
-                place = memory[cleanWord.replace("place", "p")] ?? place;
-                memory[cleanWord] = place;
+                const memoryShorthand = cleanWord
+                  .replace("place", "p")
+                  .toLowerCase();
+                place = memory[memoryShorthand] ?? place;
+                memory[memoryShorthand] = place;
               }
               return place;
             }
