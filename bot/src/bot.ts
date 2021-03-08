@@ -224,10 +224,10 @@ client.on("message", async (message) => {
             } else if (
               closeEnough("character", cleanWord) ||
               cleanWord === "c" ||
-              /(e|character)[0-9]/i.test(cleanWord)
+              /(c|character)[0-9]/i.test(cleanWord)
             ) {
               let character = pickRandom(characters)?.content;
-              if (/(e|character)[0-9]/i.test(cleanWord)) {
+              if (/(c|character)[0-9]/i.test(cleanWord)) {
                 character = memory[cleanWord] ?? character;
                 memory[cleanWord] = character;
               }
