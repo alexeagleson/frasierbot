@@ -42,3 +42,8 @@ model Quotes {
   id      Int    @id @default(autoincrement())
   content String @unique @db.VarChar(2000)
 }
+
+model Places {
+  id      Int    @id @default(autoincrement())
+  content String @unique @db.VarChar(2000)
+}

@@ -28,7 +28,7 @@ export const DECISION_TREE: Record<ARG_1, Record<ARG_2, MessageProcessor>> = {
     noun: async (arg, message) => {
       try {
         await prismaConnection.nouns.create({
-          data: { content: arg.toLowerCase() },
+          data: { content: arg },
         });
         message.channel.send(`My lexicon is growing, I've learned ${arg}.`);
       } catch (e) {
@@ -92,6 +92,19 @@ export const DECISION_TREE: Record<ARG_1, Record<ARG_2, MessageProcessor>> = {
       const noQuotesArg = arg.replace(/"/g, "");
       try {
         await prismaConnection.quotes.create({
+          data: { content: noQuotesArg },
+        });
+        message.channel.send(
+          `My lexicon is growing, I've learned ${noQuotesArg}.`
+        );
+      } catch (e) {
+        createError(e, message);
+      }
+    },
+    place: async (arg, message) => {
+      const noQuotesArg = arg.replace(/"/g, "");
+      try {
+        await prismaConnection.places.create({
           data: { content: noQuotesArg },
         });
         message.channel.send(
@@ -174,6 +187,17 @@ export const DECISION_TREE: Record<ARG_1, Record<ARG_2, MessageProcessor>> = {
         deleteError(e, message);
       }
     },
+    place: async (arg, message) => {
+      try {
+        await prismaConnection.places.delete({
+          where: { content: arg },
+          
+        });
+        message.channel.send(`${arg} forgotten`);
+      } catch (e) {
+        deleteError(e, message);
+      }
+    },
   },
   list: {
     noun: async (arg, message) => {
@@ -238,6 +262,16 @@ export const DECISION_TREE: Record<ARG_1, Record<ARG_2, MessageProcessor>> = {
     },
     quote: async (arg, message) => {
       const results = await prismaConnection.quotes.findMany();
+      if (results.length === 0) {
+        message.channel.send(`Dear god!  I don't know any`);
+      } else {
+        message.channel.send(
+          results.map((result) => result.content).join(", ")
+        );
+      }
+    },
+    place: async (arg, message) => {
+      const results = await prismaConnection.places.findMany();
       if (results.length === 0) {
         message.channel.send(`Dear god!  I don't know any`);
       } else {

@@ -63,6 +63,8 @@ const shorthandTransform = (arg: string): string => {
     return "exclamation";
   } else if (arg === "q") {
     return "quote";
+  } else if (arg === "p") {
+    return "place";
   }
   return arg;
 };
@@ -109,11 +111,14 @@ client.on("message", async (message) => {
       const characters = await prismaConnection.characters.findMany();
       const exclamations = await prismaConnection.exclamations.findMany();
       const quotes = await prismaConnection.quotes.findMany();
+      const places = await prismaConnection.places.findMany();
 
       // Delete the user's message presuming it contains terms between curlies {} implying it wants the bot to reply
       if (!isDM && process.env.DELETE_MESSAGES?.toUpperCase() === "Y") {
         message.delete();
       }
+
+      const memory: Record<string, string> = {};
 
       return message.channel.send(
         // italics(
@@ -125,13 +130,22 @@ client.on("message", async (message) => {
             // const wordNoCurlies = word.replace(CurlyBraces, "");
             const cleanWord = clean(word);
 
-            if (closeEnough("noun", cleanWord) || cleanWord === "n") {
-              return pickRandom(nouns)?.content;
+            if (
+              closeEnough("noun", cleanWord) ||
+              cleanWord === "n" ||
+              /(n|noun)[0-9]/i.test(cleanWord)
+            ) {
+              let noun = pickRandom(nouns)?.content;
+              if (/(n|noun)[0-9]/i.test(cleanWord)) {
+                noun = memory[cleanWord] ?? noun;
+                memory[cleanWord] = noun;
+              }
+              return noun;
             } else if (
               closeEnough("noun_plural", cleanWord) ||
               cleanWord === "np"
             ) {
-              const noun = pickRandom(nouns)?.content;
+              let noun = pickRandom(nouns)?.content;
               const doc = nlp(noun);
               doc.nouns().toPlural();
               const transformedNoun = doc.text();
@@ -209,27 +223,43 @@ client.on("message", async (message) => {
                 : transformedVerb;
             } else if (
               closeEnough("character", cleanWord) ||
-              cleanWord === "c"
+              cleanWord === "c" ||
+              /(e|character)[0-9]/i.test(cleanWord)
             ) {
-              const character = pickRandom(characters)?.content;
+              let character = pickRandom(characters)?.content;
+              if (/(e|character)[0-9]/i.test(cleanWord)) {
+                character = memory[cleanWord] ?? character;
+                memory[cleanWord] = character;
+              }
+
               const doc = nlp(character);
               doc.all().toTitleCase();
               return doc.text();
             } else if (
               closeEnough("exclamation", cleanWord) ||
-              cleanWord === "e"
+              cleanWord === "e" ||
+              /(e|exclamation)[0-9]/i.test(cleanWord)
             ) {
-              const exclamation = pickRandom(exclamations)?.content;
-              // const doc = nlp(verb);
-              // doc.verbs().toFutureTense();
-              // const transformedVerb = doc.text();
+              let exclamation = pickRandom(exclamations)?.content;
+              if (/(e|exclamation)[0-9]/i.test(cleanWord)) {
+                exclamation = memory[cleanWord] ?? exclamation;
+                memory[cleanWord] = exclamation;
+              }
               return exclamation;
-            } else if (closeEnough("quotes", cleanWord) || cleanWord === "q") {
+            } else if (closeEnough("quote", cleanWord) || cleanWord === "q") {
               const quote = pickRandom(quotes)?.content;
-              // const doc = nlp(verb);
-              // doc.verbs().toFutureTense();
-              // const transformedVerb = doc.text();
               return quote;
+            } else if (
+              closeEnough("place", cleanWord) ||
+              cleanWord === "p" ||
+              /(p|place)[0-9]/i.test(cleanWord)
+            ) {
+              let place = pickRandom(places)?.content;
+              if (/(p|place)[0-9]/i.test(cleanWord)) {
+                place = memory[cleanWord] ?? place;
+                memory[cleanWord] = place;
+              }
+              return place;
             }
             // }
             return word;
