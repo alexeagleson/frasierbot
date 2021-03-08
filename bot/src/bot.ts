@@ -137,7 +137,7 @@ client.on("message", async (message) => {
             ) {
               let noun = pickRandom(nouns)?.content;
               if (/(n|noun)[0-9]/i.test(cleanWord)) {
-                noun = memory[cleanWord] ?? noun;
+                noun = memory[cleanWord.replace("noun", "n")] ?? noun;
                 memory[cleanWord] = noun;
               }
               return noun;
@@ -228,7 +228,7 @@ client.on("message", async (message) => {
             ) {
               let character = pickRandom(characters)?.content;
               if (/(c|character)[0-9]/i.test(cleanWord)) {
-                character = memory[cleanWord] ?? character;
+                character = memory[cleanWord.replace("character", "c")] ?? character;
                 memory[cleanWord] = character;
               }
 
@@ -242,7 +242,7 @@ client.on("message", async (message) => {
             ) {
               let exclamation = pickRandom(exclamations)?.content;
               if (/(e|exclamation)[0-9]/i.test(cleanWord)) {
-                exclamation = memory[cleanWord] ?? exclamation;
+                exclamation = memory[cleanWord.replace("exclamation", "e")] ?? exclamation;
                 memory[cleanWord] = exclamation;
               }
               return exclamation;
@@ -256,7 +256,7 @@ client.on("message", async (message) => {
             ) {
               let place = pickRandom(places)?.content;
               if (/(p|place)[0-9]/i.test(cleanWord)) {
-                place = memory[cleanWord] ?? place;
+                place = memory[cleanWord.replace("place", "p")] ?? place;
                 memory[cleanWord] = place;
               }
               return place;
